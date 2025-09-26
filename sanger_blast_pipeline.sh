@@ -38,6 +38,7 @@ Optional arguments:
   -m   Sequence type: single-end or contig (default: single-end)
   -n   Number of jobs (default: 8)
   -x   File extension (default: seq)
+  -u   Updata the NCBI 16S database or not: true or false (default: false)
   -h   Show this help message
 EOF
     exit 1
@@ -47,6 +48,8 @@ EOF
 log_info() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$log_file"
 }
+export log_file
+export -f log_info
 # ==============================================================================
 # SECTION 1: 配置 (Configuration)
 # ==============================================================================
@@ -64,6 +67,8 @@ fi
 source "${CONFIG_FILE}"
 
 # --- 1.2 设置默认值 ---
+update_data="false"
+#
 ncbi_db_dir="$(ls -d ${NCBI_16S_DB_DIR}/*_latest 2>/dev/null | head -n 1)" # 自动寻找DB中以latest结尾的文件夹
 ncbi_db_file="${ncbi_db_dir}/16S_ribosomal_RNA"
 #
@@ -76,10 +81,8 @@ n_jobs=8
 extension="seq"
 #
 
-
-# --- 1.3 解析输入参数 ---
 # 使用getopts解析命令行输入参数，这允许用户覆盖默认设置
-while getopts "i:d:o:m:n:x:h" opt; do
+while getopts "i:d:o:m:n:x:u:h" opt; do
     case $opt in
         i) input_dir=$OPTARG ;;
         d) ncbi_db_file=$OPTARG ;;
@@ -87,6 +90,7 @@ while getopts "i:d:o:m:n:x:h" opt; do
         m) seq_type=$OPTARG ;;
         n) n_jobs=$OPTARG ;;
         x) extension=$OPTARG ;;
+        u) update_data=$OPTARG ;;
         h) print_help ;;
         *) print_help ;;
     esac
@@ -105,16 +109,22 @@ if [ ! -d "$input_dir" ]; then
     log_info " Use ${ncbi_db_file} instead."
 fi
 
-# 检查NCBI数据库是否存在
-if [ ! -d "$ncbi_db_dir" ]; then
-    log_info "[ERROR] NCBI database '$ncbi_db_dir' does not exist!"
-    exit 1
-fi
-
 # 检查 -m 参数值是否正确
 if [[ "$seq_type" != "single-end" && "$seq_type" != "contig" ]]; then
     log_info "[ERROR] Invalid value for -m: $seq_type"
     log_info "        Must be 'single-end' or 'contig'"
+    exit 1
+fi
+
+# 检查 -u 参数
+if [[ $update_data != "true" && $update_data != "false" ]]; then
+    log_info "[WARNING] The -u parameter was specified incorrectly and has been automatically set to false."
+    update_data="false"
+fi
+
+# 检查NCBI数据库是否存在
+if [[ ! -d "$ncbi_db_dir" && $update_data == "false" ]]; then
+    log_info "[ERROR] NCBI database '$ncbi_db_dir' does not exist!"
     exit 1
 fi
 
@@ -132,6 +142,12 @@ fi
 # ==============================================================================
 # SECTION 2: 主流程 (Main Pipeline)
 # ==============================================================================
+# 是否更新文件
+if [[ $update_data == "true" ]]; then
+    bash "${PROJECT_DIR}/bins/update_database.sh" "$NCBI_16S_DB_DIR"
+fi    
+
+
 export BLASTDB=${ncbi_db_dir}
 mkdir -p "$output_dir"
 if [[ "$seq_type" == "single-end" ]]; then
