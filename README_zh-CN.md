@@ -2,7 +2,7 @@
 
 **一个为Sanger测序数据设计的本地化、高通量BLAST注释流程。**
 
-[English](./readme.md) | 中文
+[English](./README.md) | 中文
 
 ## 项目背景
 
