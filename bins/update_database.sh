@@ -86,7 +86,7 @@ else
     
         md5sum -c $new_md5
 
-        tar -xvf ${ncbi_parent_dir}/tmp/16S_ribosomal_RNA.tar.gz
+        tar -xvf ${ncbi_parent_dir}/tmp/16S_ribosomal_RNA.tar.gz -C "${ncbi_parent_dir}/tmp"
 
         upload_time=$(
         wget --server-response --spider https://ftp.ncbi.nlm.nih.gov/blast/db/16S_ribosomal_RNA.tar.gz 2>&1 \
