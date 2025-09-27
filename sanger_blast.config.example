@@ -10,4 +10,3 @@
 
 # --- 设置主要的文件夹地址 ---
 NCBI_16S_DB_DIR="/PATH/TO/NCBI/DATABASE"
-NCBI_BLAST_BIN_DIR="/PATH/TO/NCBI/BLAST/DIR/blast+/blast-2.13.0+/bin"
