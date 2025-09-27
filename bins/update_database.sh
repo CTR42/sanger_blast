@@ -46,7 +46,7 @@ if [[ -z "$ncbi_db_dir" ]]; then
     fi
 
     # 解压已验证的数据库压缩包。
-    tar -xvf ${ncbi_parent_dir}/tmp/16S_ribosomal_RNA.tar.gz
+    tar -xvf ${ncbi_parent_dir}/tmp/16S_ribosomal_RNA.tar.gz -C ${ncbi_parent_dir}/tmp 
 
     # 获取服务器上文件的最后修改时间，以便我们用日期来命名数据库版本。
     upload_time=$(
