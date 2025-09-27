@@ -6,6 +6,7 @@ output_dir="$2"
 db_path="$3"
 n_jobs="$4"
 extension="$5"
+#echo "db_path:${db_path}"
 
 if ! command -v blastn &> /dev/null; then
     log_info "[Error] 'blastn' command not found in your PATH.\nPlease install NCBI BLAST+ and make sure its 'bin' directory is correctly added to your PATH."
@@ -20,7 +21,7 @@ process_single_file() {
     local db="$2"
     local output_dir="$3"
     local extension="$4"
-
+    #echo "db:${db}"
     local prefix
     prefix=$(basename "$query_file" .${extension})
     

@@ -103,11 +103,11 @@ if [ -z "$input_dir" ]; then
     exit 1
 fi
 
-# 检查输入文件夹是否存在
-if [ ! -d "$input_dir" ]; then
-    log_info "[WARNING] Input folder '$input_dir' does not exist!"
-    log_info " Use ${ncbi_db_file} instead."
-fi
+# 检查数据库文件夹是否存在
+# if [ ! -d "$ncbi_db_file" ]; then
+#     log_info "[WARNING] NCBI folder '$ncbi_db_' does not exist!"
+#     exit 1
+# fi
 
 # 检查 -m 参数值是否正确
 if [[ "$seq_type" != "single-end" && "$seq_type" != "contig" ]]; then
