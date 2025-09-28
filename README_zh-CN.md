@@ -39,7 +39,7 @@ cd sanger_blast
 
 ### 2\. 安装依赖软件
 
-本流程依赖于 `NCBI BLAST+` 和 `GNU Parallel`。
+本流程依赖于 `NCBI BLAST+` 和 `GNU Parallel`。请确保两者在环境变量中。
 
   * **NCBI BLAST+**: 用于执行本地序列比对。
       * [官方下载与安装指南](https://www.ncbi.nlm.nih.gov/books/NBK279671/)
@@ -80,7 +80,6 @@ vim sanger_blast.config
 
 您需要修改文件中的两个路径变量：
 
-  * `BLAST_PLUS_DIR`：指向您安装的 `NCBI BLAST+` 的 `bin` 目录 (例如: `/home/user/miniconda3/bin`)。
   * `NCBI_16S_DB_DIR`：指定一个用于存放BLAST数据库的目录 (例如: `/path/to/your/blast_db`)。
 
 *Vim 简单操作提示: 按 `i` 进入编辑模式，修改完成后按 `Esc` 退出编辑模式，然后输入 `:wq` 并回车以保存并退出。*

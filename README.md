@@ -39,7 +39,7 @@ cd sanger_blast
 
 ### 2\. Install Dependencies
 
-This pipeline relies on `NCBI BLAST+` and `GNU Parallel`.
+This pipeline relies on `NCBI BLAST+` and `GNU Parallel`. Please make sure both are in the environment variables.
 
   * **NCBI BLAST+**: Used to perform local sequence alignments.
       * [Official Download and Installation Guide](https://www.ncbi.nlm.nih.gov/books/NBK279671/)
@@ -80,7 +80,6 @@ vim sanger_blast.config
 
 You will need to modify two path variables in this file:
 
-  * `BLAST_PLUS_DIR`: The path to the `bin` directory of your `NCBI BLAST+` installation (e.g., `/home/user/miniconda3/bin`).
   * `NCBI_16S_DB_DIR`: A directory where you want to store the BLAST databases (e.g., `/path/to/your/blast_db`).
 
 *Simple Vim Tip: Press `i` to enter insert mode. After making your changes, press `Esc` to exit insert mode, then type `:wq` and press Enter to save and quit.*
