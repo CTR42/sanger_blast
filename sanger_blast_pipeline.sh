@@ -162,7 +162,7 @@ if [[ "$seq_type" == "single-end" ]]; then
     # 调用BLAST脚本，输入是修剪后的目录
     bash "${PROJECT_DIR}/bins/run_blast.sh" "$trimmed_out_dir" "$output_dir" "$ncbi_db_file" "$n_jobs" "fasta"
 
-elif [[ "$input_type" == "contig" ]]; then
+elif [[ "$seq_type" == "contig" ]]; then
     log_info "[INFO] Running BLAST step..."
     # 直接调用BLAST脚本，输入是原始目录
     bash "${PROJECT_DIR}/bins/run_blast.sh" "$input_dir" "$output_dir" "$ncbi_db_file" "$n_jobs" "${extension}"
