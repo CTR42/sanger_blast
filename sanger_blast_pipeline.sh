@@ -3,21 +3,20 @@
 # ==============================================================================
 # SCRIPT: Sanger Sequence Trimming and BLAST Pipeline
 # 
-# USAGE:  bash your_script_name.sh -i <input_folder> -o <output_folder> -d <blast_db_path>
+# USAGE:  
+#    1. Run pipeline: bash sanger_blast.sh -i <input> -o <output>
+#    2. Update DB:    bash sanger_blast.sh update
 #
 # DESCRIPTION:
 #    This script automates the processing of raw sequence files (e.g., from Sanger
 #    sequencing). It performs two main steps:
 #    1. Pre-processes each sequence file: It linearizes the sequence, replaces the
-#       header with the filename, and trims the sequence to a specific region 
-#       (e.g., substr($0, 30, 771)).
-#    2. Runs BLASTn in parallel: It takes the trimmed FASTA files and runs them
-#       against a specified 16S rRNA database using GNU Parallel for acceleration.
-#    3. Summarizes the results: It creates a final summary.txt file containing
-#       the top hit from each input file.
+#       header with the filename, and trims the sequence to a specific region.
+#    2. Runs BLASTn in parallel.
+#    3. Summarizes the results.
 #
 # AUTHOR:  Chen Tianrong
-# DATE:    2025-09-25
+# DATE:    2025-09-25 (Updated: Extracted update subcommand)
 # ==============================================================================
 
 # set -e: 使脚本在任何命令执行失败时立即退出。
@@ -27,18 +26,19 @@ log_file="./blast_$(date '+%Y%m%d_%H%M%S').log"
 # 打印帮助信息函数
 print_help() {
     cat << EOF
-Usage: $0 -i <input_folder> -d <blast_db> -o <output_folder> -m <sequence_type> -n <threads> -x <file_extension> [-h]
+Usage: 
+  $0 update                            # Update the NCBI 16S database
+  $0 -i <input_folder> [options]       # Run the Sanger BLAST pipeline
 
-Required arguments:
+Pipeline Required arguments:
   -i   Input folder containing sequence files
 
-Optional arguments:
+Pipeline Optional arguments:
   -o   Output directory (default: ./blast_out)
-  -d   NCBI database (default: lattest set by the config file)
+  -d   NCBI database (default: latest set by the config file)
   -m   Sequence type: single-end or contig (default: single-end)
   -n   Number of jobs (default: 8)
   -x   File extension (default: seq)
-  -u   Updata the NCBI 16S database or not: true or false (default: false)
   -h   Show this help message
 EOF
     exit 1
@@ -50,8 +50,14 @@ log_info() {
 }
 export log_file
 export -f log_info
+
+# 无参数输入时直接打印帮助
+if [ $# -eq 0 ]; then
+    print_help
+fi
+
 # ==============================================================================
-# SECTION 1: 配置 (Configuration)
+# SECTION 1: 配置与子命令 (Configuration & Subcommands)
 # ==============================================================================
 
 # --- 1.1 获取config文件 ---
@@ -66,23 +72,25 @@ fi
 # 使用 source 命令将配置文件中的变量加载到当前Shell环境中
 source "${CONFIG_FILE}"
 
-# --- 1.2 设置默认值 ---
-update_data="false"
-#
+# --- 1.2 处理 update 子命令 ---
+if [[ "$1" == "update" ]]; then
+    log_info "[INFO] Initializing NCBI database update..."
+    bash "${PROJECT_DIR}/bins/update_database.sh" "$NCBI_16S_DB_DIR"
+    log_info "[SUCCESS] Database update completed."
+    exit 0
+fi
+
+# --- 1.3 设置管道默认值 ---
 ncbi_db_dir="$(ls -d ${NCBI_16S_DB_DIR}/*_latest 2>/dev/null | head -n 1)" # 自动寻找DB中以latest结尾的文件夹
 ncbi_db_file="${ncbi_db_dir}/16S_ribosomal_RNA"
-#
 seq_type="single-end"
-#
 output_dir="./blast_out"
-#
 n_jobs=8
-#
 extension="seq"
-#
 
-# 使用getopts解析命令行输入参数，这允许用户覆盖默认设置
-while getopts "i:d:o:m:n:x:u:h" opt; do
+# --- 1.4 解析命令行参数 ---
+# 注意：移除了 -u 选项
+while getopts "i:d:o:m:n:x:h" opt; do
     case $opt in
         i) input_dir=$OPTARG ;;
         d) ncbi_db_file=$OPTARG ;;
@@ -90,24 +98,17 @@ while getopts "i:d:o:m:n:x:u:h" opt; do
         m) seq_type=$OPTARG ;;
         n) n_jobs=$OPTARG ;;
         x) extension=$OPTARG ;;
-        u) update_data=$OPTARG ;;
         h) print_help ;;
         *) print_help ;;
     esac
 done
 
-# --- 1.4 检查参数是否无误 ---
+# --- 1.5 检查参数是否无误 ---
 # 检查必填参数
 if [ -z "$input_dir" ]; then
     log_info "[ERROR] No input folder specified. Use -i option."
     exit 1
 fi
-
-# 检查数据库文件夹是否存在
-# if [ ! -d "$ncbi_db_file" ]; then
-#     log_info "[WARNING] NCBI folder '$ncbi_db_' does not exist!"
-#     exit 1
-# fi
 
 # 检查 -m 参数值是否正确
 if [[ "$seq_type" != "single-end" && "$seq_type" != "contig" ]]; then
@@ -116,19 +117,13 @@ if [[ "$seq_type" != "single-end" && "$seq_type" != "contig" ]]; then
     exit 1
 fi
 
-# 检查 -u 参数
-if [[ $update_data != "true" && $update_data != "false" ]]; then
-    log_info "[WARNING] The -u parameter was specified incorrectly and has been automatically set to false."
-    update_data="false"
-fi
-
 # 检查NCBI数据库是否存在
-if [[ ! -d "$ncbi_db_dir" && $update_data == "false" ]]; then
-    log_info "[ERROR] NCBI database '$ncbi_db_dir' does not exist!"
+if [[ ! -d "$ncbi_db_dir" ]]; then
+    log_info "[ERROR] NCBI database directory does not exist! Please run '$0 update' first."
     exit 1
 fi
 
-# 检查 输入文件夹中给定后缀文件数量
+# 检查输入文件夹中给定后缀文件数量
 count=$(find "$input_dir" -maxdepth 1 -type f -name "*$extension" | wc -l)
 
 if [ "$count" -eq 0 ]; then
@@ -142,14 +137,10 @@ fi
 # ==============================================================================
 # SECTION 2: 主流程 (Main Pipeline)
 # ==============================================================================
-# 是否更新文件
-if [[ $update_data == "true" ]]; then
-    bash "${PROJECT_DIR}/bins/update_database.sh" "$NCBI_16S_DB_DIR"
-fi    
-
 
 export BLASTDB=${ncbi_db_dir}
 mkdir -p "$output_dir"
+
 if [[ "$seq_type" == "single-end" ]]; then
     trimmed_out_dir="${input_dir}/Trimmed"
     mkdir -p "$trimmed_out_dir"
