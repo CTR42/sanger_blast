@@ -1,25 +1,6 @@
 #!/usr/bin/env bash
 
-# ==============================================================================
-# SCRIPT: Sanger Sequence Trimming and BLAST Pipeline
-# 
-# USAGE:  
-#    1. Run pipeline: bash sanger_blast.sh -i <input> -o <output>
-#    2. Update DB:    bash sanger_blast.sh update
-#
-# DESCRIPTION:
-#    This script automates the processing of raw sequence files (e.g., from Sanger
-#    sequencing). It performs two main steps:
-#    1. Pre-processes each sequence file: It linearizes the sequence, replaces the
-#       header with the filename, and trims the sequence to a specific region.
-#    2. Runs BLASTn in parallel.
-#    3. Summarizes the results.
-#
-# AUTHOR:  Chen Tianrong
-# DATE:    2025-09-25 (Updated: Extracted update subcommand)
-# ==============================================================================
-
-# set -e: 使脚本在任何命令执行失败时立即退出。
+# 使脚本在任何命令执行失败时立即退出。
 set -e
 log_file="./blast_$(date '+%Y%m%d_%H%M%S').log"
 
@@ -69,7 +50,7 @@ if [ ! -f "${CONFIG_FILE}" ]; then
     log_info "[ERROR] Can't find the config file '${CONFIG_FILE}'"
     exit 1
 fi
-# 使用 source 命令将配置文件中的变量加载到当前Shell环境中
+# 将配置文件中的变量加载到当前Shell环境中
 source "${CONFIG_FILE}"
 
 # --- 1.2 处理 update 子命令 ---
@@ -89,7 +70,6 @@ n_jobs=8
 extension="seq"
 
 # --- 1.4 解析命令行参数 ---
-# 注意：移除了 -u 选项
 while getopts "i:d:o:m:n:x:h" opt; do
     case $opt in
         i) input_dir=$OPTARG ;;

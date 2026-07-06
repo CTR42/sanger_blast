@@ -77,12 +77,11 @@ process_and_deploy() {
     # 5. 重命名为最终目录
     final_dir_name="${ncbi_parent_dir}/NCBI_16S_v${upload_date}_latest"
     # 清理掉不再需要的压缩包和 md5，保持最终目录纯净
-    rm -f "${tar_file}" "${md5_file}"
+    rm -f "${tar_file}"
     mv "${update_tmp_dir}" "${final_dir_name}"
     
     log_info "[SUCCESS] Database deployed to ${final_dir_name}"
 }
-
 
 # ==========================================
 # --- 主逻辑检查 ---
@@ -102,7 +101,6 @@ if [[ ! -f "${new_md5}" ]]; then
     log_info "[ERROR] Cannot find or download MD5 file. Please check network or put the .md5 file in tmp_update manually." >&2
     exit 1
 fi
-
 
 if [[ -z "$ncbi_db_dir" ]]; then
     log_info "[INFO] No *_latest directory found. Performing initial setup."

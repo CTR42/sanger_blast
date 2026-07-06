@@ -78,7 +78,7 @@ vim sanger_blast.config
 # nano sanger_blast.config
 ```
 
-您需要修改文件中的两个路径变量：
+您需要修改文件中的路径变量：
 
   * `NCBI_16S_DB_DIR`：指定一个用于存放BLAST数据库的目录 (例如: `/path/to/your/blast_db`)。
 
@@ -101,7 +101,6 @@ sanger_blast_pipeline.sh -i <input_folder> -d <blast_db> -o <output_folder> -m <
 | `-m <序列类型>` | 序列类型: `single-end` 或 `contig`。(默认: `single-end`) |
 | `-n <整数>` | 并行的任务数量/线程数。(默认: `8`) |
 | `-x <扩展名>` | 测序文件的扩展名，不含"."。(默认: `seq`) |
-| `-u <布尔值>` | 是否更新数据库: `true` 或 `false`。(默认: `false`) |
 | `-h` | 显示此帮助信息。 |
 
 ### 使用示例
@@ -116,10 +115,10 @@ bash sanger_blast_pipeline.sh -i data/raw_reads -o output/blast_results -n 16 -x
 
 **示例2：首次运行或更新数据库**
 
-如果您是第一次使用，或者希望在运行前自动检查并更新NCBI 16S数据库，请将 `-u` 设为`true` 。
+如果您是第一次使用，或者希望在运行前自动检查并更新NCBI 16S数据库。
 
 ```bash
-bash sanger_blast_pipeline.sh -i data/raw_reads -u true
+bash sanger_blast_pipeline.sh update
 ```
 
 *流程会自动处理数据库的下载、解压和命名，您无需手动干预。*

@@ -78,7 +78,7 @@ vim sanger_blast.config
 # nano sanger_blast.config
 ```
 
-You will need to modify two path variables in this file:
+You will need to modify path variable in this file:
 
   * `NCBI_16S_DB_DIR`: A directory where you want to store the BLAST databases (e.g., `/path/to/your/blast_db`).
 
@@ -102,7 +102,6 @@ sanger_blast_pipeline.sh -i <input_folder> -d <blast_db> -o <output_folder> -m <
 | `-m <seq_type>` | The sequence type: `single-end` or `contig`. (Default: `single-end`) |
 | `-n <integer>` | The number of parallel jobs/threads to run. (Default: `8`) |
 | `-x <extension>` | The file extension of sequence files, without the ".". (Default: `seq`) |
-| `-u <boolean>` | Whether to update the database: `true` or `false`. (Default: `false`) |
 | `-h` | Shows this help message. |
 
 ### Usage Examples
@@ -117,10 +116,10 @@ bash sanger_blast_pipeline.sh -i data/raw_reads -o output/blast_results -n 16 -x
 
 **Example 2: First Run or Updating the Database**
 
-If this is your first time running the pipeline, or if you wish to automatically check for and update the NCBI 16S database before running, set the `-u` flag to `true`.
+If this is your first time running the pipeline, or if you wish to automatically check for and update the NCBI 16S database before running.
 
 ```bash
-bash sanger_blast_pipeline.sh -i data/raw_reads -u true
+bash sanger_blast_pipeline.sh update
 ```
 
 *The pipeline will automatically handle the database download, extraction, and naming processes for you.*
