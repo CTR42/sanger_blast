@@ -5,6 +5,8 @@ set -e
 input_dir="$1"
 output_dir="$2"
 extension="$3"
+left_trim="$4"
+keep_len="$5"
 
 
 mkdir -p "$output_dir"
@@ -27,7 +29,7 @@ for file in "$input_dir"/*."$extension"; do
             # 1. 将原始文件名作为新的FASTA头
             echo ">${filename}"
             # 2. 从合并后的序列中，去除旧的头信息行，并截取序列的特定部分 (从第30个字符开始，截取771个字符)
-            awk '!/^>/ {print substr($0, 30, 771)}' "$merged_file"
+            awk -v lt="$left_trim" -v kl="$keep_len" '!/^>/ {print substr($0, lt, kl)}' "$merged_file"
         } > "$temp_file"
 
         # 将处理好的临时文件移动到Trimmed目录，并重命名

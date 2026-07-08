@@ -8,10 +8,7 @@ n_jobs="$4"
 extension="$5"
 #echo "db_path:${db_path}"
 
-if ! command -v blastn &> /dev/null; then
-    log_info "[Error] 'blastn' command not found in your PATH.\nPlease install NCBI BLAST+ and make sure its 'bin' directory is correctly added to your PATH."
-    exit 1
-fi
+
 
 # 定义一个函数，用于处理单个文件的BLAST任务
 process_single_file() {
@@ -30,11 +27,11 @@ process_single_file() {
     local final_out="${output_dir}/${prefix}_blast_out.txt"
 
     # 执行blastn命令
-    "blastn" -query "$query_file" \
-                 -db "$db" \
-                 -out "$tmp_out" \
-                 -outfmt "6 sscinames sseqid stitle bitscore score qcovs evalue pident length" \
-                 -max_target_seqs 5
+    "${BLASTN_PATH}" -query "$query_file" \
+                     -db "$db" \
+                     -out "$tmp_out" \
+                     -outfmt "6 sscinames sseqid stitle bitscore score qcovs evalue pident length" \
+                     -max_target_seqs 5
 
     # 写入表头到最终输出文件
     echo -e "Scientific Name\tAccession\tDescription\tMax Score\tTotal Score\tQuery Cover\tE value\tPer. Ident\tLen" > "$final_out"
@@ -51,7 +48,7 @@ export -f process_single_file
 # 使用find和parallel来并行处理所有的文件
 # printf "[INFO] Starting BLAST tasks in parallel...\n"
 find "$input_dir" -maxdepth 1 -type f -name "*.${extension}" -print0 | \
-    parallel -0 --bar -j ${n_jobs} process_single_file {} "$db_path" "$output_dir" "$extension"
+    "${PARALLEL_PATH}" -0 --bar -j ${n_jobs} process_single_file {} "$db_path" "$output_dir" "$extension"
 
 # --- 步骤 3: 汇总结果 ---
 

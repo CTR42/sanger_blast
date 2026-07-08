@@ -8,5 +8,9 @@
 #
 # ==============================================================================
 
+# --- 设置软件地址 ---
+BLASTN_PATH="/PATH/bin/blastn"
+PARALLEL_PATH="/PATH/parallel"
+
 # --- 设置主要的文件夹地址 ---
 NCBI_16S_DB_DIR="/PATH/TO/NCBI/DATABASE"
